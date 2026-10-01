@@ -1475,6 +1475,7 @@ function loop(t){
 
 function update(dt){
   streakFx(dt);
+  if(gs.reviveT>0){ gs.reviveT-=dt; return; } // respiro tras revivir: nada cae ni aparece
   const isCustom = gs.li===-1;
   const isArcade = gs.li===-2;
   const isLibrary = gs.li===-3;
@@ -1585,10 +1586,25 @@ const STREAK_ACHIEVEMENTS=[
 ];
 
 function resetCombo(){
-  gs.combo={words:0,best:0,tier:0,vis:0,xp:0,popT:0,popText:"",popColor:"#fff",flash:0,lostT:0,lostWords:0,comets:[]};
+  gs.reviveT=0; gs.combo={words:0,best:0,tier:0,vis:0,xp:0,popT:0,popText:"",popColor:"#fff",flash:0,lostT:0,lostWords:0,comets:[]};
 }
 resetCombo();
 function streakMult(){ return STREAK_TIERS[gs.combo.tier].mult; }
+
+// Tras ver el anuncio y revivir, la partida se reanudaba con las palabras pegadas al suelo y se moria al instante.
+// Ahora las palabras suben arriba (escalonadas), se descarta la palabra a medias y hay unos segundos de respiro.
+const REVIVE_GRACE=2.4;
+function reviveReset(){
+  const list=[...gs.targets].sort((a,b)=>b.y-a.y);
+  // empiezan justo debajo del HUD (que en el movil ocupa dos filas) y se reparten sin llegar al suelo
+  const hud=_("hud"), hudB=hud&&!hud.classList.contains("hidden") ? hud.getBoundingClientRect().bottom : 90;
+  const y0=hudB+34, span=Math.max(0,baseY()-150-y0);
+  const step=list.length>1 ? Math.min(58,span/(list.length-1)) : 0;
+  list.forEach((tg,i)=>{ tg.y=y0+i*step; tg.typed=0; });
+  gs.active=null; gs.lasers=[];
+  gs.spawnTimer=REVIVE_GRACE*1000+600;
+  gs.reviveT=REVIVE_GRACE;
+}
 
 function streakBreak(){
   const c=gs.combo;
@@ -1725,6 +1741,16 @@ function drawStreakHud(){
     ctx.save();
     ctx.globalAlpha=Math.max(0,k-0.4)*0.8; ctx.strokeStyle=c.popColor; ctx.lineWidth=4;
     ctx.beginPath(); ctx.arc(W/2,H*0.30,(1-k)*Math.max(W,H)*0.45,0,7); ctx.stroke();
+    ctx.restore();
+  }
+  if(gs.reviveT>0){
+    ctx.save(); ctx.textAlign="center"; ctx.textBaseline="middle";
+    const k=gs.reviveT/REVIVE_GRACE;
+    ctx.font="800 40px 'Baloo 2',Nunito,sans-serif"; ctx.lineWidth=7; ctx.strokeStyle="rgba(20,10,50,.85)";
+    ctx.strokeText("¡Prepárate!",W/2,H*0.60); ctx.fillStyle="#6bcf7f"; ctx.fillText("¡Prepárate!",W/2,H*0.60);
+    ctx.font="800 64px 'Baloo 2',Nunito,sans-serif";
+    const num=String(Math.ceil(gs.reviveT));
+    ctx.strokeText(num,W/2,H*0.69); ctx.fillStyle="#ffd93d"; ctx.fillText(num,W/2,H*0.69);
     ctx.restore();
   }
   if(c.flash>0){ ctx.fillStyle=`rgba(255,255,255,${c.flash*0.16})`; ctx.fillRect(0,0,W,H); }
@@ -1923,6 +1949,7 @@ function gameOver(win){
         trackRewardedAd();
         gs.revived=true;
         gs.lives=1;
+        reviveReset();
         gs.state="play";
         showScreen(null);
         _("hud").classList.remove("hidden");
@@ -1931,7 +1958,7 @@ function gameOver(win){
         _("kb-guide").style.display="flex";
         updateHUD();
         petSay("good");
-        showToast("❤️ ¡Reviviste con 1 Vida extra! [" + getAdsRemaining72h() + "/5 ads 72h]");
+        showToast("❤️ ¡Reviviste! Las palabras vuelven a subir [" + getAdsRemaining72h() + "/5 ads 72h]");
         gs.lastT=performance.now();
         rafId=requestAnimationFrame(loop);
       }
