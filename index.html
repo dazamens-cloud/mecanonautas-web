@@ -50,6 +50,8 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(120% 120% at 50%
   #hud-best{display:none}
   .coll-tabs{flex-wrap:wrap;justify-content:center}
   .tab-btn{padding:6px 14px;font-size:14px}
+  .stat{min-width:78px;padding:8px 12px}
+  .stat .sv{font-size:22px}
 }
 
 /* Detectar viewport expandido (plegables) */
@@ -199,6 +201,12 @@ h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(36px,8vw,72px);line-hei
 .stat .sl{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 
 /* ====== PREMIUM ====== */
+.ach-row{display:flex;align-items:center;gap:12px;background:var(--panel);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 14px;width:100%;text-align:left;opacity:.62}
+.ach-row.done{opacity:1;border-color:rgba(255,217,61,.5);box-shadow:0 0 12px rgba(255,217,61,.18)}
+.ach-ic{font-size:30px;width:40px;text-align:center}
+.ach-nm{font-family:'Baloo 2';font-weight:800;font-size:16px}
+.ach-ds{font-size:12px;color:var(--muted);font-weight:700}
+.ach-xp{margin-left:auto;font-family:'Baloo 2';font-weight:800;font-size:13px;color:var(--xp);white-space:nowrap}
 .premium-box{background:linear-gradient(135deg,rgba(167,139,250,.2),rgba(236,72,153,.15));border:2px solid rgba(167,139,250,.4);border-radius:20px;padding:20px 28px;max-width:380px;width:100%}
 .premium-box h2{font-family:'Baloo 2';font-weight:800;font-size:24px;color:var(--gold);margin-bottom:8px}
 .premium-list{text-align:left;display:flex;flex-direction:column;gap:6px;margin:10px 0}
@@ -337,10 +345,12 @@ h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(36px,8vw,72px);line-hei
       <button class="tab-btn active" data-tab="pets">Mascotas</button>
       <button class="tab-btn" data-tab="skins">Accesorios</button>
       <button class="tab-btn" data-tab="premium">⚡ Premium</button>
+      <button class="tab-btn" data-tab="achievements">🏅 Logros</button>
     </div>
     <div id="tab-pets" class="pets-grid"></div>
     <div id="tab-skins" class="skins-grid" style="display:none"></div>
     <canvas id="skin-preview" width="160" height="160" style="display:none;margin-bottom:12px;border:2px solid rgba(255,255,255,.15);border-radius:12px"></canvas>
+    <div id="tab-achievements" style="display:none;flex-direction:column;gap:10px;width:100%;max-width:420px"></div>
     <div id="tab-premium" style="display:none;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:420px"></div>
     <button class="btn sec" id="btn-back-coll">← Volver</button>
   </div>
@@ -402,6 +412,7 @@ h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(36px,8vw,72px);line-hei
         <li>1️⃣ Teclea la <strong>primera letra</strong> para "apuntar" la palabra</li>
         <li>2️⃣ Completa el resto escribiendo sin parar</li>
         <li>3️⃣ ¡Destruye palabras antes de que toquen el suelo!</li>
+        <li>4️⃣ Cada palabra seguida <strong>sin fallar</strong> sube tu racha 🚀 y multiplica tu XP</li>
       </ul>
       <p style="font-size:12px;color:var(--coral);font-weight:800">💡 No mires el teclado, usa posición base</p>
       <button class="btn" id="btn-start-tutorial" style="font-size:16px">¡Entendido!</button>
@@ -700,6 +711,8 @@ function defaultSave(){
     highScore: 0,
     firstTime: true,
     customUnlocked: false,
+    achievements: {},
+    bestWordStreak: 0,
     customTexts: [],
     weeklyQuest: { weekNum: 0, prog: 0, claimed: false },
     adTimestamps: [],
@@ -764,6 +777,8 @@ function loadSave(){
   if(!S.progress) S.progress={};
   if(!S.activePet) S.activePet="robot";
   if(S.firstTime===undefined) S.firstTime=false;
+  if(!S.achievements) S.achievements={};
+  if(!S.bestWordStreak) S.bestWordStreak=0;
   
   // Reiniciar o verificar misión semanal
   const mission = getCurrentWeeklyMission();
@@ -1312,7 +1327,7 @@ function startCustomGame(words){
   gs.state="play"; gs.score=0; gs.lives=3;
   gs.targets=[]; gs.particles=[]; gs.lasers=[];
   gs.active=null; gs.completedWords=0; gs.shake=0;
-  gs.correctChars=0; gs.errorChars=0; gs.wordsDone=0;
+  gs.correctChars=0; gs.errorChars=0; gs.wordsDone=0; resetCombo();
   gs.eventWordsCompleted=0;
   gs.runStart=performance.now();
   clearTimeout(petAnim._bubbleTimer);
@@ -1349,7 +1364,7 @@ function startArcadeGame(){
   gs.state="play"; gs.score=0; gs.lives=3;
   gs.targets=[]; gs.particles=[]; gs.lasers=[];
   gs.active=null; gs.completedWords=0; gs.shake=0;
-  gs.correctChars=0; gs.errorChars=0; gs.wordsDone=0;
+  gs.correctChars=0; gs.errorChars=0; gs.wordsDone=0; resetCombo();
   gs.eventWordsCompleted=0;
   gs.arcadePhase=1;
   gs.runStart=performance.now();
@@ -1415,7 +1430,7 @@ function startSublevel(li, si){
   gs.state="play"; gs.score=0; gs.lives=3;
   gs.targets=[]; gs.particles=[]; gs.lasers=[];
   gs.active=null; gs.completedWords=0; gs.shake=0;
-  gs.correctChars=0; gs.errorChars=0; gs.wordsDone=0;
+  gs.correctChars=0; gs.errorChars=0; gs.wordsDone=0; resetCombo();
   gs.eventWordsCompleted=0;
   gs.runStart=performance.now();
   clearTimeout(petAnim._bubbleTimer);
@@ -1459,6 +1474,7 @@ function loop(t){
 }
 
 function update(dt){
+  streakFx(dt);
   const isCustom = gs.li===-1;
   const isArcade = gs.li===-2;
   const isLibrary = gs.li===-3;
@@ -1486,7 +1502,7 @@ function update(dt){
   for(const p of gs.particles){ p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=130*dt; p.life-=dt; }
   gs.particles=gs.particles.filter(p=>p.life>0);
   for(const l of gs.lasers) l.life-=dt; gs.lasers=gs.lasers.filter(l=>l.life>0);
-  for(const s of stars){ s.y+=s.speed*dt; if(s.y>H){s.y=-4;s.x=Math.random()*W;} if(s.twinkle)s.phase+=0.05; }
+  for(const s of stars){ s.y+=s.speed*dt*(1+gs.combo.vis*0.7); if(s.y>H){s.y=-4;s.x=Math.random()*W;} if(s.twinkle)s.phase+=0.05; }
   if(gs.shake>0) gs.shake=Math.max(0,gs.shake-dt*45);
 }
 
@@ -1548,6 +1564,179 @@ function spawnWord(sub){
   });
 }
 
+// ============================================================
+// RACHAS DE PALABRAS SIN FALLAR
+// ============================================================
+// Cada palabra completada sin fallar suma a la racha. Una tecla equivocada, o una palabra que toca el suelo,
+// la rompe. La racha sube de nivel (multiplicador de XP, aurora, cometas...) y desbloquea logros que se guardan.
+const STREAK_TIERS=[
+  {at:0,  mult:1,   name:"",                   color:"#8d7bd6", rgb:"141,123,214"},
+  {at:5,  mult:1.5, name:"¡Chispa!",           color:"#4ecdc4", rgb:"78,205,196"},
+  {at:10, mult:2,   name:"¡Cohete en marcha!", color:"#6bcf7f", rgb:"107,207,127"},
+  {at:20, mult:2.5, name:"¡Turbo espacial!",   color:"#ffd93d", rgb:"255,217,61"},
+  {at:35, mult:3,   name:"¡Velocidad luz!",    color:"#ff7eb6", rgb:"255,126,182"},
+];
+const STREAK_ACHIEVEMENTS=[
+  {id:"s5",  at:5,  icon:"✨", name:"Chispa",                 desc:"5 palabras seguidas sin fallar",  xp:50},
+  {id:"s10", at:10, icon:"🎯", name:"Cohete en marcha",       desc:"10 palabras seguidas sin fallar", xp:100},
+  {id:"s20", at:20, icon:"⚡", name:"Turbo espacial",         desc:"20 palabras seguidas sin fallar", xp:200},
+  {id:"s35", at:35, icon:"🌠", name:"Velocidad luz",          desc:"35 palabras seguidas sin fallar", xp:350},
+  {id:"s50", at:50, icon:"👑", name:"Mecanonauta legendario", desc:"50 palabras seguidas sin fallar", xp:500},
+];
+
+function resetCombo(){
+  gs.combo={words:0,best:0,tier:0,vis:0,xp:0,popT:0,popText:"",popColor:"#fff",flash:0,lostT:0,lostWords:0,comets:[]};
+}
+resetCombo();
+function streakMult(){ return STREAK_TIERS[gs.combo.tier].mult; }
+
+function streakBreak(){
+  const c=gs.combo;
+  if(c.words>=3){ c.lostT=1.8; c.lostWords=c.words; }
+  c.words=0; c.tier=0;
+}
+
+function streakHit(){
+  const c=gs.combo;
+  c.words++;
+  if(c.words>c.best) c.best=c.words;
+  if(c.words>(S.bestWordStreak||0)) S.bestWordStreak=c.words;
+  let nt=0;
+  STREAK_TIERS.forEach((tr,i)=>{ if(c.words>=tr.at) nt=i; });
+  let celebrate=false;
+  if(nt>c.tier){
+    c.tier=nt;
+    const tr=STREAK_TIERS[nt];
+    c.popText=`${tr.name} x${tr.mult}`; c.popColor=tr.color; c.popT=1.8; c.flash=1;
+    celebrate=true; petSay("good");
+  }
+  for(const a of STREAK_ACHIEVEMENTS){
+    if(c.words>=a.at && !S.achievements[a.id]){
+      S.achievements[a.id]=Date.now();
+      const earned=addXP(a.xp);
+      showToast(`🏅 ¡Logro! ${a.icon} ${a.name} · +${earned} XP`,3200);
+      if(!celebrate){ c.popText=`${a.icon} ${a.name}`; c.popColor="#ffd93d"; c.popT=1.8; c.flash=1; celebrate=true; }
+    }
+  }
+  if(celebrate) sLevel();
+}
+
+// efectos que avanzan con el tiempo (vis sube suave hacia el nivel de racha; cometas desde el nivel 2)
+function streakFx(dt){
+  const c=gs.combo;
+  c.vis+=(c.tier-c.vis)*Math.min(1,dt*2.5);
+  if(c.popT>0) c.popT-=dt;
+  if(c.lostT>0) c.lostT-=dt;
+  if(c.flash>0) c.flash=Math.max(0,c.flash-dt*3.5);
+  if(c.tier>=2 && Math.random()<dt*(0.8+c.tier)*0.9){
+    c.comets.push({x:rand(W*0.1,W*1.1),y:-10,vx:-rand(120,260),vy:rand(260,520),life:1.1});
+  }
+  for(const m of c.comets){ m.x+=m.vx*dt; m.y+=m.vy*dt; m.life-=dt; }
+  c.comets=c.comets.filter(m=>m.life>0 && m.y<H+40);
+}
+
+function drawStreakBackdrop(){
+  const c=gs.combo, v=c.vis;
+  if(v<0.05) return;
+  const rgb=STREAK_TIERS[c.tier].rgb, tm=performance.now()/1000;
+  const k=Math.min(1,v/4);
+  // aurora superior: crece con la racha
+  let g=ctx.createLinearGradient(0,0,0,H*0.6);
+  g.addColorStop(0,`rgba(${rgb},${0.10+0.20*k})`); g.addColorStop(1,`rgba(${rgb},0)`);
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H*0.6);
+  // resplandor desde la nave (nivel 2+)
+  if(v>1){
+    const pp=Math.min(1,(v-1)/3), pulse=0.85+0.15*Math.sin(tm*4);
+    g=ctx.createRadialGradient(baseX(),baseY(),10,baseX(),baseY(),H*0.55*pulse);
+    g.addColorStop(0,`rgba(${rgb},${0.28*pp})`); g.addColorStop(1,`rgba(${rgb},0)`);
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  }
+  // bordes de energia (nivel 3+)
+  if(v>2){
+    const pp=Math.min(1,(v-2)/2);
+    for(let sd=0;sd<2;sd++){
+      const x0=sd?W:0, x1=sd?W-60:60;
+      g=ctx.createLinearGradient(x0,0,x1,0);
+      g.addColorStop(0,`rgba(${rgb},${0.30*pp*(0.7+0.3*Math.sin(tm*5+sd))})`); g.addColorStop(1,`rgba(${rgb},0)`);
+      ctx.fillStyle=g; ctx.fillRect(sd?W-60:0,0,60,H);
+    }
+  }
+  // banda arcoiris en movimiento (nivel maximo)
+  if(v>3){
+    const pp=Math.min(1,v-3);
+    const ns=14, sw=W/ns;
+    for(let i=0;i<ns;i++){
+      const hue=(tm*50+i*26)%360;
+      g=ctx.createLinearGradient(0,0,0,H*0.22);
+      g.addColorStop(0,`hsla(${hue},90%,65%,${0.20*pp})`); g.addColorStop(1,`hsla(${hue},90%,65%,0)`);
+      ctx.fillStyle=g; ctx.fillRect(i*sw,0,sw+1,H*0.22);
+    }
+  }
+}
+
+function drawComets(){
+  const c=gs.combo;
+  if(!c.comets.length) return;
+  const rgb=STREAK_TIERS[c.tier].rgb;
+  ctx.lineCap="round"; ctx.lineWidth=2.5;
+  for(const m of c.comets){
+    const a=Math.min(1,m.life*1.5), len=0.09;
+    const g=ctx.createLinearGradient(m.x,m.y,m.x-m.vx*len,m.y-m.vy*len);
+    g.addColorStop(0,`rgba(255,255,255,${0.9*a})`); g.addColorStop(1,`rgba(${rgb},0)`);
+    ctx.strokeStyle=g;
+    ctx.beginPath(); ctx.moveTo(m.x,m.y); ctx.lineTo(m.x-m.vx*len,m.y-m.vy*len); ctx.stroke();
+  }
+}
+
+// medidor de racha (izquierda), aviso de subida de nivel y destello
+function drawStreakHud(){
+  const c=gs.combo, tr=STREAK_TIERS[c.tier], nx=STREAK_TIERS[c.tier+1];
+  const tm=performance.now()/1000;
+  if(c.words>0){
+    const mx=8, mw=10, my=H*0.22, mh=H*0.40;
+    const pr=nx?Math.min(1,(c.words-tr.at)/(nx.at-tr.at)):1;
+    ctx.fillStyle="rgba(255,255,255,.10)"; roundR2(mx,my,mw,mh,5); ctx.fill();
+    const fh=Math.max(6,mh*pr);
+    ctx.save();
+    if(!nx||pr>0.8){ ctx.shadowColor=tr.color; ctx.shadowBlur=10+6*Math.sin(tm*6); }
+    ctx.fillStyle=tr.color; roundR2(mx,my+mh-fh,mw,fh,5); ctx.fill();
+    ctx.restore();
+    ctx.textAlign="left"; ctx.textBaseline="alphabetic";
+    ctx.font="800 20px 'Baloo 2',Nunito,sans-serif"; ctx.fillStyle=tr.color;
+    ctx.fillText("x"+tr.mult,mx-2,my-8);
+    ctx.font="700 14px Nunito,sans-serif"; ctx.fillStyle="#fff";
+    ctx.fillText("🚀 "+c.words,mx-2,my+mh+20);
+    if(nx){
+      ctx.font="700 11px Nunito,sans-serif"; ctx.fillStyle="rgba(255,255,255,.65)";
+      ctx.fillText(`${nx.at-c.words} → x${nx.mult}`,mx-2,my+mh+36);
+    }
+  }
+  if(c.popT>0){
+    const k=c.popT/1.8, sc=1+Math.max(0,k-0.85)*3.5;
+    ctx.save();
+    ctx.translate(W/2,H*0.30); ctx.scale(sc,sc); ctx.globalAlpha=Math.min(1,k*2);
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    let fs=34; ctx.font=`800 ${fs}px 'Baloo 2',Nunito,sans-serif`;
+    const tw=ctx.measureText(c.popText).width;
+    if(tw>W-24){ fs=Math.floor(34*(W-24)/tw); ctx.font=`800 ${fs}px 'Baloo 2',Nunito,sans-serif`; }
+    ctx.lineWidth=7; ctx.strokeStyle="rgba(20,10,50,.85)"; ctx.strokeText(c.popText,0,0);
+    ctx.fillStyle=c.popColor; ctx.fillText(c.popText,0,0);
+    ctx.restore();
+    ctx.save();
+    ctx.globalAlpha=Math.max(0,k-0.4)*0.8; ctx.strokeStyle=c.popColor; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.arc(W/2,H*0.30,(1-k)*Math.max(W,H)*0.45,0,7); ctx.stroke();
+    ctx.restore();
+  }
+  if(c.flash>0){ ctx.fillStyle=`rgba(255,255,255,${c.flash*0.16})`; ctx.fillRect(0,0,W,H); }
+  if(c.lostT>0 && c.lostWords>=3 && c.popT<=0){
+    ctx.save();
+    ctx.globalAlpha=Math.min(1,c.lostT); ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.font="800 18px Nunito,sans-serif"; ctx.fillStyle="rgba(255,255,255,.85)";
+    ctx.fillText(`Racha de ${c.lostWords} · ¡a por otra!`,W/2,H*0.30);
+    ctx.restore();
+  }
+}
+
 function handleKey(ch){
   const k=norm(ch);
   if(!/^[a-z]$/.test(k)) return;
@@ -1555,12 +1744,12 @@ function handleKey(ch){
     let cands=gs.targets.filter(t=>t.n[t.typed]===k && t.typed===0).sort((a,b)=>b.y-a.y);
     if(cands.length){ gs.active=cands[0]; gs.active.typed=1; gs.correctChars++; sTick(); shoot(gs.active);
       if(gs.active.typed===gs.active.n.length) destroyWord(gs.active);
-    } else { gs.errorChars++; sErr(); }
+    } else { gs.errorChars++; sErr(); streakBreak(); }
   } else {
     if(gs.active.n[gs.active.typed]===k){
       gs.active.typed++; gs.correctChars++; sZap(); shoot(gs.active);
       if(gs.active.typed===gs.active.n.length) destroyWord(gs.active);
-    } else { gs.errorChars++; sErr(); gs.shake=Math.min(gs.shake+5,12); }
+    } else { gs.errorChars++; sErr(); gs.shake=Math.min(gs.shake+5,12); streakBreak(); }
   }
 }
 
@@ -1570,8 +1759,10 @@ function destroyWord(t){
   const bonus = t.isEventWord ? 25 : 0;
   gs.score += 10 + t.word.length * 3 + bonus;
   gs.wordsDone++; gs.completedWords++;
+  streakHit(); gs.combo.xp+=5*streakMult();
   if(t.isEventWord) gs.eventWordsCompleted++; // trackear palabra de verano
   sBoom(); burst(t.x,t.y,t.color);
+  if(gs.combo.tier>0) burst(t.x,t.y,STREAK_TIERS[gs.combo.tier].color,4+gs.combo.tier*4);
   if(t.isEventWord) burst(t.x,t.y,"#ffd700");
   gs.targets=gs.targets.filter(o=>o.id!==t.id); gs.active=null;
   updateHUD();
@@ -1620,7 +1811,7 @@ function loseLife(t){
   const isEventWord = !!t.isEventWord;
 
   if(!isEventWord){
-    gs.lives--; sErr(); gs.shake=12;
+    gs.lives--; sErr(); gs.shake=12; streakBreak();
     burst(t.x,baseY(),"#ff6b6b");
     petSay("bad");
   } else {
@@ -1646,7 +1837,7 @@ function sublevelComplete(){
   const stars2=acc>=70||gs.lives>=2;
   const starsEarned=stars3?3:stars2?2:1;
   // XP por subnivel + bonus verano
-  let xpBase=50+gs.wordsDone*5;
+  let xpBase=50+Math.round(gs.combo.xp); // 5 XP por palabra, multiplicados por la racha del momento
   if(gs.eventWordsCompleted>0) xpBase+=gs.eventWordsCompleted*100; // bonus 100 XP por cada palabra de verano
   const xpEarned=addXP(xpBase);
   markDone(gs.li, gs.si, starsEarned, acc);
@@ -1683,7 +1874,7 @@ function sublevelComplete(){
       ? `Siguiente: ${LEVELS[nextLI].name} › ${LEVELS[nextLI].subs[nextSI]?.name||""}`
       : "¡Completaste todos los niveles! 🏆";
     _("lu-stats").innerHTML=
-      statBox(gs.score,"Puntos")+statBox(wpm,"PPM")+statBox(acc+"%","Precisión")+statBox("+"+xpEarned+" XP","Ganados");
+      statBox(gs.score,"Puntos")+statBox(wpm,"PPM")+statBox(acc+"%","Precisión")+statBox("+"+xpEarned+" XP","Ganados")+(gs.combo.best>=3?statBox("🚀 "+gs.combo.best,"Mejor racha"):"");
     // guardar next para botón continuar
     _("btn-continue").dataset.li=nextLI;
     _("btn-continue").dataset.si=nextSI;
@@ -1712,7 +1903,7 @@ function gameOver(win){
   _("ov-mascot").textContent=win?"🏆":gs.li===-2?"☄️":"💫";
   _("ov-title").textContent=win?"¡Eres un Mecanonauta!":gs.li===-2?`¡Partida Arcade! Amenaza Nv.${gs.arcadePhase||1}`:"¡Vuelve a intentarlo!";
   _("ov-stats").innerHTML=
-    statBox(gs.score,"Puntos")+statBox(S.arcadeHighScore||S.highScore,"Récord")+statBox(wpm,"PPM")+statBox(acc+"%","Precisión");
+    statBox(gs.score,"Puntos")+statBox(S.arcadeHighScore||S.highScore,"Récord")+statBox(wpm,"PPM")+statBox(acc+"%","Precisión")+(gs.combo.best>=3?statBox("🚀 "+gs.combo.best,"Mejor racha"):"");
   
   // Mostrar botón de revivir con anuncio si es modo Arcade o normal y no se ha revivido aún
   const btnRevive = _("btn-revive-ad");
@@ -1786,10 +1977,12 @@ function render(){
   let sx=0,sy=0;
   if(gs.shake>0){ sx=rand(-gs.shake,gs.shake); sy=rand(-gs.shake,gs.shake); }
   ctx.save(); ctx.translate(sx,sy);
+  drawStreakBackdrop();
 
   // estrellas
   for(const s of stars){
     let op=s.op; if(s.twinkle) op=s.op*(0.5+0.5*Math.sin(s.phase));
+    op=Math.min(1,op*(1+gs.combo.vis*0.5));
     ctx.globalAlpha=op;
     ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,7); ctx.fill();
     if(s.r>1.4){ ctx.strokeStyle="rgba(255,255,255,.3)"; ctx.lineWidth=0.8;
@@ -1800,6 +1993,7 @@ function render(){
   ctx.globalAlpha=1;
 
   if(gs.state==="play"||gs.state==="pause"){
+    drawComets();
     // láseres
     for(const l of gs.lasers){
       ctx.strokeStyle=`rgba(255,217,61,${l.life/0.14})`; ctx.lineWidth=3;
@@ -1815,7 +2009,9 @@ function render(){
       const total=wD+wR, sx2=t.x-total/2;
       const padX=13, h=fs+14;
       const isActive=gs.active&&gs.active.id===t.id;
+      if(gs.combo.vis>1.2){ ctx.shadowColor=STREAK_TIERS[gs.combo.tier].color; ctx.shadowBlur=8+gs.combo.vis*3; }
       ctx.fillStyle="rgba(0,0,0,.4)"; roundR2(sx2-padX,t.y-h/2,total+padX*2,h,10); ctx.fill();
+      ctx.shadowBlur=0;
       if(isActive){ ctx.strokeStyle="#ffd93d"; ctx.lineWidth=3; roundR2(sx2-padX,t.y-h/2,total+padX*2,h,10); ctx.stroke(); }
       ctx.textAlign="left"; ctx.textBaseline="middle";
       ctx.fillStyle="#6bcf7f"; ctx.fillText(done,sx2,t.y);
@@ -1830,6 +2026,7 @@ function render(){
     ctx.globalAlpha=1;
     // nave
     drawShip(baseX(),baseY());
+    drawStreakHud();
   }
 
   ctx.restore();
@@ -1852,8 +2049,7 @@ function roundR2(x,y,w,h,r){
   ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
 }
 
-function burst(x,y,color){
-  const n=14;
+function burst(x,y,color,n=14){
   for(let i=0;i<n;i++){
     const a=Math.random()*Math.PI*2, sp=rand(50,180);
     gs.particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:rand(0.4,0.9),max:0.9,color});
@@ -2124,6 +2320,16 @@ function buildCollection(){
     sg.appendChild(div);
   });
 
+  // logros de racha
+  const ap=_("tab-achievements");
+  const doneN=STREAK_ACHIEVEMENTS.filter(a=>S.achievements[a.id]).length;
+  ap.innerHTML=`<div class="premium-active" style="background:rgba(255,217,61,.12);border-color:rgba(255,217,61,.4);color:var(--gold)">🏅 ${doneN}/${STREAK_ACHIEVEMENTS.length} logros · Mejor racha: ${S.bestWordStreak||0} palabras</div>`+
+    `<p style="font-size:12px;color:var(--muted);font-weight:700">Completa palabras seguidas sin fallar: cada racha multiplica el XP de la partida.</p>`+
+    STREAK_ACHIEVEMENTS.map(a=>{
+      const ok=!!S.achievements[a.id];
+      return `<div class="ach-row${ok?" done":""}"><div class="ach-ic">${ok?a.icon:"🔒"}</div><div class="ach-tx"><div class="ach-nm">${a.name}</div><div class="ach-ds">${a.desc}</div></div><div class="ach-xp">${ok?"✔ Logrado":"+"+a.xp+" XP"}</div></div>`;
+    }).join("");
+
   // premium
   const pp=_("tab-premium"); pp.innerHTML="";
   if(isPremium()){
@@ -2154,7 +2360,7 @@ function buildCollection(){
 }
 
 function switchTab(name){
-  ["pets","skins","premium"].forEach(t=>{
+  ["pets","skins","premium","achievements"].forEach(t=>{
     _("tab-"+t).style.display=t===name?(name==="pets"?"grid":name==="skins"?"grid":"flex"):"none";
   });
   _("skin-preview").style.display=name==="skins"?"block":"none";
@@ -2342,7 +2548,7 @@ function startLibraryStory(story, diffMode){
   gs.state="play"; gs.score=0; gs.lives=3;
   gs.targets=[]; gs.particles=[]; gs.lasers=[];
   gs.active=null; gs.completedWords=0; gs.shake=0;
-  gs.correctChars=0; gs.errorChars=0; gs.wordsDone=0;
+  gs.correctChars=0; gs.errorChars=0; gs.wordsDone=0; resetCombo();
   gs.eventWordsCompleted=0;
   gs.runStart=performance.now();
   clearTimeout(petAnim._bubbleTimer);
