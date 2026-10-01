@@ -1,0 +1,124 @@
+{
+  "id": "/",
+  "name": "Mecanonautas: Mecanografía",
+  "short_name": "Mecanonautas",
+  "description": "Juego educativo de mecanografía para niños de 6 a 12 años. Las palabras caen del espacio y hay que teclearlas.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1a1140",
+  "theme_color": "#1a1140",
+  "lang": "es-ES",
+  "dir": "ltr",
+  "categories": [
+    "education",
+    "games",
+    "kids"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/escritorio-1_menu.png",
+      "sizes": "1366x768",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Menú principal"
+    },
+    {
+      "src": "screenshots/escritorio-2_partida.png",
+      "sizes": "1366x768",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Una partida"
+    },
+    {
+      "src": "screenshots/escritorio-3_niveles.png",
+      "sizes": "1366x768",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Elige un nivel"
+    },
+    {
+      "src": "screenshots/escritorio-4_coleccion.png",
+      "sizes": "1366x768",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Colección de mascotas"
+    },
+    {
+      "src": "screenshots/escritorio-5_arcade.png",
+      "sizes": "1366x768",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Modo arcade"
+    },
+    {
+      "src": "screenshots/movil-1_menu.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Menú principal"
+    },
+    {
+      "src": "screenshots/movil-2_partida.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Una partida"
+    },
+    {
+      "src": "screenshots/movil-4_coleccion.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Colección de mascotas"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Jugar",
+      "short_name": "Jugar",
+      "url": "./?action=play",
+      "icons": [
+        {
+          "src": "icons/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Colección",
+      "short_name": "Colección",
+      "url": "./?action=collection",
+      "icons": [
+        {
+          "src": "icons/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}
