@@ -1261,8 +1261,9 @@ function petSay(type){
 
 const COLORS=["#4ecdc4","#ff7eb6","#ffd93d","#6bcf7f","#ff6b6b"];
 // Velocidad global de caída de las palabras. 1 = original (en el nivel 10 cruzaba la pantalla en ~6 s,
-// demasiado para 6-8 años). 0.5 = la mitad. Es el único mando: afecta a niveles, arcade y biblioteca.
-const FALL_FACTOR=0.5;
+// demasiado para 6-8 años en un móvil). 0.5 = la mitad. Es el único mando: afecta a niveles, arcade y biblioteca.
+// Pantalla táctil (móvil/tablet, Android incluido): mitad. Ratón y teclado físico (PC, Microsoft Store): original.
+const FALL_FACTOR=(window.matchMedia && window.matchMedia('(pointer:coarse)').matches) ? 0.5 : 1;
 const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\u00f1/g,"n");
 
 let rafId=null, menuRafId=null;
