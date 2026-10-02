@@ -228,6 +228,9 @@ h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(36px,8vw,72px);line-hei
 
 #streak-info{position:absolute;top:8px;right:10px;z-index:11;background:var(--panel);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:3px 10px;font-family:'Baloo 2';font-weight:700;font-size:13px;color:var(--coral);pointer-events:none;visibility:hidden}
 #streak-info:empty{display:none}
+#xp-pill{position:absolute;top:8px;left:10px;z-index:11;background:var(--panel);border:2px solid rgba(167,139,250,.5);border-radius:14px;padding:3px 12px;font-family:'Baloo 2';font-weight:700;font-size:13px;color:var(--xp);cursor:pointer;visibility:hidden;touch-action:manipulation}
+#xp-pill.can-buy{border-color:var(--yellow);color:var(--yellow);box-shadow:0 0 12px rgba(255,217,61,.45);animation:pulse 1.6s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){#xp-pill.can-buy{animation:none}}
 
 /* ====== GUÍA DE BOTONES (tutorial, página 2) ====== */
 .guide-list{list-style:none;display:flex;flex-direction:column;gap:8px}
@@ -334,6 +337,7 @@ body:not(.native) .g-native{display:none}
 
   <!-- Racha de días: pastilla arriba a la derecha, solo visible en el menú principal -->
   <div id="streak-info"></div>
+  <button id="xp-pill" aria-label="Tienda de mascotas y accesorios"></button>
 
   <!-- ===== PANTALLA NIVELES ===== -->
   <div class="ov hidden" id="sc-levels">
@@ -441,6 +445,8 @@ body:not(.native) .g-native{display:none}
         <li><b>Niveles</b> Elige un nivel que ya hayas desbloqueado.</li>
         <li><b>🐾 Colección</b> Gasta tu XP en mascotas, accesorios y Premium.</li>
         <li><b>📚 Biblioteca</b> Escribe cuentos clásicos con la dificultad que elijas.</li>
+        <li><b>⭐ XP</b> Los puntos que ganas jugando. Púlsalos en el menú para ir a la tienda de mascotas y accesorios.</li>
+        <li><b>🔥 Racha</b> Cada día que vuelves a jugar sube tu racha y te regala XP: más días seguidos, más XP.</li>
         <li><b>🏆 Récords</b> Tus mejores puntuaciones del Arcade.</li>
         <li><b>🔒 Mis textos</b> Entrena con tus propios textos. Se abre al terminar el nivel 6.</li>
         <li><b>⏸ Pausa</b> <span class="g-native">Pulsa el botón Atrás del móvil.</span><span class="g-web">Botón ⏸ o tecla ESC.</span> Desde la pausa puedes quitar el sonido o salir al menú y seguir luego.</li>
@@ -948,7 +954,11 @@ function updateStreak(){
   if(S.lastPlayDate === yesterday){ S.streak++; }
   else if(S.lastPlayDate !== today){ S.streak = 1; }
   S.lastPlayDate = today;
+  // Bono diario por racha: 10 XP por día de racha, con tope en 10 días (10..100). XP fijo, sin multiplicadores.
+  const bonus = Math.min(S.streak, 10) * 10;
+  S.xp += bonus; S.totalXp += bonus;
   saveSave();
+  setTimeout(()=>{ updateXPBar(); showToast(`🔥 Día ${S.streak} de racha: +${bonus} XP`, 3400); }, 700);
 }
 
 // ============================================================
@@ -2172,9 +2182,23 @@ function updateHUD(){
   _("hud-xp").textContent=`⭐${S.totalXp}`+(isPremium()?" ⚡":"");
 }
 
+// XP en el menú principal: pulsarlo lleva a la tienda. Se resalta cuando ya llega para comprar algo.
+function canBuySomething(){
+  const owned=id=>S.unlockedPets.includes(id);
+  const pet=PETS.some(p=>!owned(p.id) && S.xp>=p.cost && (p.reqLevel<0 || isLevelComplete100(p.reqLevel)));
+  const skin=SKINS.some(sk=>owned(sk.petId) && !S.unlockedSkins.includes(sk.id) && S.xp>=sk.cost);
+  return pet||skin;
+}
+function updateMenuXp(){
+  const el=_("xp-pill"); if(!el||!S) return;
+  el.textContent=`⭐ ${S.xp} XP · 🛍️ Tienda`;
+  el.classList.toggle("can-buy", canBuySomething());
+}
+
 function updateXPBar(){
   const progress=(S.xp%500)/500*100;
   _("xp-bar-fill").style.width=Math.min(100,progress)+"%";
+  updateMenuXp();
   _("coll-xp-label").textContent=`⭐ ${S.totalXp} XP total · ${S.xp} XP para gastar`;
 }
 
@@ -2192,6 +2216,8 @@ function showScreen(id){
   if(id==="sc-start") disarmBack(); else armBack();
   _("btn-resume-game").style.display=gs.suspended?"":"none";
   _("streak-info").style.visibility=id==="sc-start"?"visible":"hidden";
+  _("xp-pill").style.visibility=id==="sc-start"?"visible":"hidden";
+  if(id==="sc-start") updateMenuXp();
 }
 
 // ---- Botón Atrás ----
@@ -2529,6 +2555,7 @@ function renderSkinPreview(){
 
 _("btn-play").onclick=()=>{ ac(); findFirstAvailable(); };
 _("btn-resume-game").onclick=()=>{ ac(); resumeSuspended(); };
+_("xp-pill").onclick=()=>{ _("btn-collection").click(); switchTab("pets"); };
 _("btn-arcade").onclick=()=>{ ac(); startArcadeGame(); };
 _("btn-leaderboard").onclick=()=>{ AndroidServices.showLeaderboard(); };
 _("btn-back-leaderboard").onclick=()=>{ cancelAnimationFrame(menuRafId); gs.state="menu"; showScreen("sc-start"); startMenuAnim(); };
@@ -2768,7 +2795,7 @@ function updateMenuStreak(){
 // ============================================================
 // INIT
 // ============================================================
-const APP_BUILD="1.2.4"; // sube con cada tanda de cambios: permite saber qué versión está viendo el jugador
+const APP_BUILD="1.2.6"; // sube con cada tanda de cambios: permite saber qué versión está viendo el jugador
 _("build-id").textContent="v"+APP_BUILD+(IS_NATIVE?" · Android":" · web");
 loadSave();
 if(S.firstTime) showTutorial(1); // el tutorial existía pero nunca se mostraba
