@@ -329,6 +329,7 @@ body:not(.native) .g-native{display:none}
 
     <p id="input-hint" style="font-size:12px;color:var(--muted);font-weight:700">Usa el teclado · ESC pausa</p>
     <button class="btn sec" id="btn-help" style="font-size:14px;padding:6px 18px" aria-label="Ayuda">❓ Ayuda</button>
+    <div id="build-id" style="font-size:11px;color:var(--muted);opacity:.7;font-weight:700"></div>
   </div>
 
   <!-- Racha de días: pastilla arriba a la derecha, solo visible en el menú principal -->
@@ -1817,9 +1818,15 @@ function drawStreakHud(){
   }
 }
 
+let lastKey="", lastKeyT=0;
 function handleKey(ch){
   const k=norm(ch);
   if(!/^[a-z]$/.test(k)) return;
+  // Cinturón y tirantes contra pulsaciones dobles (teclado físico + input oculto, IME, eventos repetidos):
+  // la misma letra dos veces en menos de 30 ms es imposible a mano, así que la segunda se ignora.
+  const nowK=performance.now();
+  if(k===lastKey && nowK-lastKeyT<30) return;
+  lastKey=k; lastKeyT=nowK;
   if(!gs.active){
     let cands=gs.targets.filter(t=>t.n[t.typed]===k && t.typed===0).sort((a,b)=>b.y-a.y);
     if(cands.length){ gs.active=cands[0]; gs.active.typed=1; gs.correctChars++; sTick(); shoot(gs.active);
@@ -2761,6 +2768,8 @@ function updateMenuStreak(){
 // ============================================================
 // INIT
 // ============================================================
+const APP_BUILD="1.2.4"; // sube con cada tanda de cambios: permite saber qué versión está viendo el jugador
+_("build-id").textContent="v"+APP_BUILD+(IS_NATIVE?" · Android":" · web");
 loadSave();
 if(S.firstTime) showTutorial(1); // el tutorial existía pero nunca se mostraba
 updateStreak();

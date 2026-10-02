@@ -70,7 +70,8 @@ self.addEventListener('fetch', event => {
   }
 
   event.respondWith(
-    fetch(event.request)
+    // no-cache: pregunta siempre al servidor (GitHub Pages permite cachear 10 min y se veía la versión vieja tras publicar)
+    fetch(event.request, { cache: 'no-cache' })
       .then(response => {
         if (!response || response.status !== 200 || response.type === 'error') {
           return response;
