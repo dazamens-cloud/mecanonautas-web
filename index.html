@@ -27,7 +27,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(120% 120% at 50%
 /* ====== RESPONSIVE: LANDSCAPE & TABLETS ====== */
 @media (orientation:landscape) {
   #app{max-width:100vw;height:100vh}
-  #hud{flex-wrap:wrap;gap:6px;padding:8px 12px;font-size:13px}
+  #hud{gap:6px;padding:8px 12px;font-size:13px}
   .hb{font-size:13px;padding:4px 10px}
   #kb-guide{bottom:4px}
   .kb-tip{font-size:10px;padding:4px 10px}
@@ -42,12 +42,12 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(120% 120% at 50%
 /* ====== RESPONSIVE: móviles estrechos en vertical ======
    Sin esto, Colección medía 576px y el HUD se salía en pantallas de 360-412px. */
 @media (max-width:480px) {
-  #hud{flex-wrap:wrap;gap:6px;padding:8px 10px}
-  .hb{font-size:13px;padding:3px 8px;white-space:nowrap}
-  #hud-lives{font-size:14px;letter-spacing:0}
-  .pw{flex:1 1 60px;min-width:40px}
-  #btn-mute,#btn-pause{width:34px;height:34px;font-size:15px}
-  #hud-best{display:none}
+  #hud{gap:5px;padding:8px 8px}
+  .hb{font-size:13px;padding:3px 7px}
+  #hud-lives{font-size:13px;letter-spacing:0}
+  .lv-name{display:none}
+  body:not(.native) #hud-xp{display:none} /* sin botón Atrás (web) el ⏸ necesita sitio */
+  #btn-pause{width:34px;height:34px;font-size:15px}
   .coll-tabs{flex-wrap:wrap;justify-content:center}
   .tab-btn{padding:6px 14px;font-size:14px}
   .stat{min-width:78px;padding:8px 12px}
@@ -61,18 +61,18 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(120% 120% at 50%
 #pet-canvas,#pet-start{position:relative;z-index:auto}
 
 /* ====== HUD ====== */
-#hud{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:8px;padding:12px 16px;z-index:5;pointer-events:none}
+#hud{position:absolute;top:0;left:0;right:0;display:flex;flex-wrap:nowrap;align-items:center;gap:8px;padding:12px 16px;z-index:5;pointer-events:none}
 #hud.hidden{display:none}
-.hb{background:var(--panel);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:5px 12px;backdrop-filter:blur(6px);font-family:'Baloo 2';font-weight:700;font-size:16px;display:flex;align-items:center;gap:6px}
+.hb{background:var(--panel);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:5px 12px;font-family:'Baloo 2';font-weight:700;font-size:16px;display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap}
 #hud-lives{font-size:18px;letter-spacing:1px}
 #hud-level{color:var(--cyan);font-size:14px}
-.pw{flex:1;max-width:180px;height:8px;background:rgba(0,0,0,.3);border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,.1)}
+.pw{position:absolute;left:10px;right:10px;bottom:2px;height:7px;background:rgba(0,0,0,.3);border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,.1)}
 #pb{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s ease;border-radius:99px}
 #hud-score{color:var(--yellow)}
 #hud-xp{color:var(--xp);font-size:13px}
-#hud-streak{color:var(--coral);font-size:13px}
-#btn-mute,#btn-pause{pointer-events:auto;cursor:pointer;background:var(--panel);border:2px solid rgba(255,255,255,.12);border-radius:12px;width:48px;height:48px;font-size:18px;color:var(--ink);transition:transform .1s;touch-action:manipulation}
-#btn-mute:hover,#btn-pause:hover{transform:scale(1.1)}
+#btn-pause{pointer-events:auto;flex-shrink:0;cursor:pointer;background:var(--panel);border:2px solid rgba(255,255,255,.12);border-radius:12px;width:48px;height:48px;font-size:18px;color:var(--ink);transition:transform .1s;touch-action:manipulation}
+#btn-pause:hover{transform:scale(1.1)}
+body.native #btn-pause{display:none} /* en Android se pausa con el botón Atrás */
 /* Hidden touch input for mobile keyboard */
 #touch-input{position:fixed;opacity:0;pointer-events:none;top:0;left:0;width:1px;height:1px;font-size:16px;}
 
@@ -226,6 +226,18 @@ h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(36px,8vw,72px);line-hei
 #toast{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);background:var(--panel);border:2px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 20px;font-family:'Baloo 2';font-weight:700;font-size:15px;color:var(--ink);z-index:30;opacity:0;transition:opacity .3s;pointer-events:none;width:max-content;max-width:calc(100% - 32px);text-align:center;white-space:normal;overflow-wrap:anywhere}
 #toast.show{opacity:1}
 
+#streak-info{position:absolute;top:8px;right:10px;z-index:11;background:var(--panel);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:3px 10px;font-family:'Baloo 2';font-weight:700;font-size:13px;color:var(--coral);pointer-events:none;visibility:hidden}
+#streak-info:empty{display:none}
+
+/* ====== GUÍA DE BOTONES (tutorial, página 2) ====== */
+.guide-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.guide-list li{font-size:13px;font-weight:700;color:var(--muted);line-height:1.3}
+.guide-list b{color:var(--ink);font-family:'Baloo 2';font-size:14px;margin-right:4px}
+/* Con el teclado del móvil abierto sobra el teclado dibujado y falta sitio */
+body.kbd-open #kb-guide{display:none !important}
+body.native .g-web{display:none}
+body:not(.native) .g-native{display:none}
+
 /* ====== SCROLLBAR ====== */
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:rgba(0,0,0,.2)}
@@ -245,10 +257,7 @@ h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(36px,8vw,72px);line-hei
     <div class="hb" id="hud-level">Nv 1.1</div>
     <div class="pw"><div id="pb"></div></div>
     <div class="hb" id="hud-score">0</div>
-    <div class="hb" id="hud-best">🏆0</div>
-    <div class="hb" id="hud-xp">⭐0 XP</div>
-    <div class="hb" id="hud-streak">🔥0</div>
-    <button id="btn-mute">🔊</button>
+    <div class="hb" id="hud-xp">⭐0</div>
     <button id="btn-pause">⏸</button>
   </div>
 
@@ -294,6 +303,7 @@ h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(36px,8vw,72px);line-hei
       <button class="btn sec" id="btn-levels">Niveles</button>
     </div>
     <div class="row">
+      <button class="btn" id="btn-resume-game" style="display:none">▶ Continuar partida</button>
       <button class="btn pur" id="btn-collection">🐾 Colección</button>
       <button class="btn sec" id="btn-library">📚 Biblioteca</button>
       <button class="btn" id="btn-leaderboard" style="background:linear-gradient(180deg,#ffd700,#f59e0b);color:#78350f">🏆 Récords</button>
@@ -317,9 +327,12 @@ h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(36px,8vw,72px);line-hei
       </div>
     </div>
 
-    <div id="streak-info" style="font-family:'Baloo 2';font-weight:700;font-size:14px;color:var(--coral)"></div>
     <p id="input-hint" style="font-size:12px;color:var(--muted);font-weight:700">Usa el teclado · ESC pausa</p>
+    <button class="btn sec" id="btn-help" style="font-size:14px;padding:6px 18px" aria-label="Ayuda">❓ Ayuda</button>
   </div>
+
+  <!-- Racha de días: pastilla arriba a la derecha, solo visible en el menú principal -->
+  <div id="streak-info"></div>
 
   <!-- ===== PANTALLA NIVELES ===== -->
   <div class="ov hidden" id="sc-levels">
@@ -386,6 +399,7 @@ h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(36px,8vw,72px);line-hei
     <div class="mascot-big">⏸️</div>
     <h1 style="font-size:clamp(28px,5vw,46px)">Pausa</h1>
     <button class="btn" id="btn-resume">Seguir jugando</button>
+    <button class="btn sec" id="btn-mute">🔊 Sonido</button>
     <button class="btn sec" id="btn-quit-pause">Salir al menú</button>
   </div>
 
@@ -404,7 +418,7 @@ h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(36px,8vw,72px);line-hei
 
   <!-- ===== TUTORIAL INICIAL ===== -->
   <div id="tutorial-overlay" style="position:absolute;inset:0;background:rgba(0,0,0,.85);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:25;backdrop-filter:blur(4px)">
-    <div style="background:var(--panel);border:3px solid var(--cyan);border-radius:24px;padding:32px 40px;max-width:420px;text-align:center;display:flex;flex-direction:column;gap:16px">
+    <div id="tut-p1" style="background:var(--panel);border:3px solid var(--cyan);border-radius:24px;padding:32px 40px;max-width:420px;max-height:92%;overflow-y:auto;text-align:center;display:flex;flex-direction:column;gap:16px">
       <div style="font-size:64px">⌨️</div>
       <h2 style="font-family:'Baloo 2';font-weight:800;font-size:28px;color:var(--yellow)">¡Bienvenido!</h2>
       <p style="font-size:14px;color:var(--muted);font-weight:700">Las palabras caen del cielo. Tienes que:</p>
@@ -415,7 +429,24 @@ h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(36px,8vw,72px);line-hei
         <li>4️⃣ Cada palabra seguida <strong>sin fallar</strong> sube tu racha 🚀 y multiplica tu XP</li>
       </ul>
       <p style="font-size:12px;color:var(--coral);font-weight:800">💡 No mires el teclado, usa posición base</p>
-      <button class="btn" id="btn-start-tutorial" style="font-size:16px">¡Entendido!</button>
+      <button class="btn" id="btn-start-tutorial" style="font-size:16px">¡Entendido! →</button>
+    </div>
+    <!-- Página 2: guía de los botones -->
+    <div id="tut-p2" style="display:none;background:var(--panel);border:3px solid var(--yellow);border-radius:24px;padding:24px 28px;max-width:420px;width:92%;max-height:92%;overflow-y:auto;text-align:left;flex-direction:column;gap:10px">
+      <h2 style="font-family:'Baloo 2';font-weight:800;font-size:24px;color:var(--yellow);text-align:center">¿Para qué sirve cada botón?</h2>
+      <ul class="guide-list">
+        <li><b>¡JUGAR!</b> Sigue tu aventura por los niveles, donde la dejaste.</li>
+        <li><b>☄️ Arcade</b> Sobrevive a una lluvia de palabras que no se acaba. ¡Bate tu récord!</li>
+        <li><b>Niveles</b> Elige un nivel que ya hayas desbloqueado.</li>
+        <li><b>🐾 Colección</b> Gasta tu XP en mascotas, accesorios y Premium.</li>
+        <li><b>📚 Biblioteca</b> Escribe cuentos clásicos con la dificultad que elijas.</li>
+        <li><b>🏆 Récords</b> Tus mejores puntuaciones del Arcade.</li>
+        <li><b>🔒 Mis textos</b> Entrena con tus propios textos. Se abre al terminar el nivel 6.</li>
+        <li><b>⏸ Pausa</b> <span class="g-native">Pulsa el botón Atrás del móvil.</span><span class="g-web">Botón ⏸ o tecla ESC.</span> Desde la pausa puedes quitar el sonido o salir al menú y seguir luego.</li>
+        <li><b>❤️ Vidas</b> Pierdes una si una palabra toca el suelo.</li>
+      </ul>
+      <p style="font-size:12px;color:var(--muted);font-weight:700;text-align:center">Puedes volver a ver esto con el botón ❓ del menú.</p>
+      <button class="btn" id="btn-tut-done" style="font-size:16px;align-self:center">¡A jugar!</button>
     </div>
   </div>
 
@@ -779,7 +810,8 @@ function loadSave(){
   if(S.firstTime===undefined) S.firstTime=false;
   if(!S.achievements) S.achievements={};
   if(!S.bestWordStreak) S.bestWordStreak=0;
-  
+  if(!Array.isArray(S.customTexts)) S.customTexts=[];
+
   // Reiniciar o verificar misión semanal
   const mission = getCurrentWeeklyMission();
   if(!S.weeklyQuest || S.weeklyQuest.weekNum !== mission.weekNum){
@@ -839,7 +871,7 @@ function updateEventCardUI(){
   }
 }
 
-function saveSave(){ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }
+function saveSave(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} } // sin almacenamiento el juego sigue, solo no guarda
 
 // ============================================================
 // SISTEMA DE LÍMITE DE ADS (COPPA 72h)
@@ -946,9 +978,22 @@ const cv=_("cv"), ctx=cv.getContext("2d");
 let W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2);
 let lastOrientation=window.innerWidth>window.innerHeight?"landscape":"portrait";
 
+// Alto del campo con la pantalla completa (sin teclado). Si el actual es bastante menor, hay teclado en pantalla.
+let fullH=0, fullW=0;
 function resize(){
+  const oldW=W, oldH=H;
   const r=cv.getBoundingClientRect(); W=r.width; H=r.height;
   cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0);
+  if(Math.abs(W-fullW)>50) fullH=0;      // giro de pantalla o plegable: se vuelve a medir
+  fullW=W; fullH=Math.max(fullH,H);
+  document.body.classList.toggle("kbd-open", H<fullH*0.8);
+  // Al abrir o cerrar el teclado el campo cambia de alto: las palabras se recolocan en proporción para no
+  // caer de golpe al suelo ni perder vidas.
+  if(oldH>0 && H>0 && (oldH!==H || oldW!==W)){
+    const fy=H/oldH, fx=oldW>0?W/oldW:1;
+    for(const t of gs.targets){ t.y*=fy; t.x=Math.min(Math.max(t.x*fx,70),Math.max(70,W-70)); }
+    for(const s of stars){ s.x*=fx; s.y*=fy; }
+  }
 
   // Detectar cambio de orientación (para plegables y tablets)
   const newOrientation=window.innerWidth>window.innerHeight?"landscape":"portrait";
@@ -1282,6 +1327,8 @@ const FALL_FACTOR=(window.matchMedia && window.matchMedia('(pointer:coarse)').ma
 const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\u00f1/g,"n");
 
 let rafId=null, menuRafId=null;
+// Un solo bucle de juego a la vez: pausar y reanudar creaba uno nuevo cada vez (el de la pausa seguía vivo)
+function startLoop(){ if(rafId) cancelAnimationFrame(rafId); gs.suspended=false; gs.lastT=performance.now(); rafId=requestAnimationFrame(loop); }
 
 function buildCustomScreen(){
   const container=_("saved-texts-list");
@@ -1321,8 +1368,16 @@ function buildCustomScreen(){
   });
 }
 
+// Deja solo letras (con tildes y ñ): una coma, un punto o una cifra pegados a la palabra la hacían imposible de teclear
+function cleanWords(list){
+  return list.map(w=>w.toLowerCase().replace(/[^a-zñáéíóúü]/g,"")).filter(w=>w.length>0);
+}
+
 function startCustomGame(words){
+  words=cleanWords(words);
+  if(words.length<5){ showToast("Ese texto no tiene suficientes palabras"); return; }
   // Crear un "subnivel" fake con el texto personalizado
+  gs.isArcade=false; gs.revived=false;
   gs.li=-1; gs.si=-1;
   gs.state="play"; gs.score=0; gs.lives=3;
   gs.targets=[]; gs.particles=[]; gs.lasers=[];
@@ -1353,9 +1408,7 @@ function startCustomGame(words){
     setTimeout(()=>showToast(`☀️ ${evt.name}\n✨ Palabras especiales — ¡+100 XP c/una! Sin castigo`), 600);
   }
 
-  if(rafId) cancelAnimationFrame(rafId);
-  gs.lastT=performance.now();
-  rafId=requestAnimationFrame(loop);
+  startLoop();
 }
 
 function startArcadeGame(){
@@ -1396,9 +1449,7 @@ function startArcadeGame(){
     setTimeout(()=>showToast(`☀️ ${evt.name}\n✨ Palabras especiales — ¡+100 XP c/una! Sin castigo`), 600);
   }
 
-  if(rafId) cancelAnimationFrame(rafId);
-  gs.lastT=performance.now();
-  rafId=requestAnimationFrame(loop);
+  startLoop();
 }
 
 function updateKeyboardGuide(li, si){
@@ -1425,7 +1476,7 @@ function updateKeyboardGuide(li, si){
 }
 
 function startSublevel(li, si){
-  gs.isArcade=false; // BUG-03: resetear modo arcade
+  gs.isArcade=false; gs.revived=false; // BUG-03: resetear modo arcade
   gs.li=li; gs.si=si;
   gs.state="play"; gs.score=0; gs.lives=3;
   gs.targets=[]; gs.particles=[]; gs.lasers=[];
@@ -1454,13 +1505,11 @@ function startSublevel(li, si){
     setTimeout(()=>showToast(`☀️ ${evt.name}\n✨ Palabras especiales — ¡+100 XP c/una! Sin castigo`), 600);
   }
 
-  if(rafId) cancelAnimationFrame(rafId);
-  gs.lastT=performance.now();
-  rafId=requestAnimationFrame(loop);
+  startLoop();
 }
 
 function loop(t){
-  const dt=Math.min(0.05,(t-gs.lastT)/1000||0); gs.lastT=t;
+  const dt=Math.max(0,Math.min(0.05,(t-gs.lastT)/1000||0)); gs.lastT=t;
   if(gs.state==="play") update(dt);
   render(dt);
   // mascota en juego
@@ -1498,8 +1547,10 @@ function update(dt){
   if(gs.spawnTimer<=0 && gs.targets.length<maxWords){
     spawnWord(sub); gs.spawnTimer=spawnRate*(0.85+Math.random()*0.3);
   }
-  for(const t of gs.targets){ t.y+=t.speed*dt*2.4*FALL_FACTOR; }
-  for(const t of [...gs.targets]) if(t.y>=baseY()-16) loseLife(t);
+  // Con el teclado abierto el campo es más bajo: la caída se frena en proporción para que el tiempo hasta el suelo sea el mismo
+  const fieldK=fullH>0 ? Math.min(1,H/fullH) : 1;
+  for(const t of gs.targets){ t.y+=t.speed*dt*2.4*FALL_FACTOR*fieldK; }
+  for(const t of [...gs.targets]){ if(gs.state!=="play") break; if(t.y>=baseY()-16) loseLife(t); } // tras perder la última vida no se sigue procesando
   for(const p of gs.particles){ p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=130*dt; p.life-=dt; }
   gs.particles=gs.particles.filter(p=>p.life>0);
   for(const l of gs.lasers) l.life-=dt; gs.lasers=gs.lasers.filter(l=>l.life>0);
@@ -1513,6 +1564,9 @@ function maxUnlockedLevel(){
   for(let l=1;l<LEVELS.length;l++){ if(isUnlocked(l,0)) m=l; }
   return m;
 }
+
+// Las palabras aparecen justo debajo del HUD (antes entraban por detrás de él y se veían tapadas)
+function topY(){ const hd=_("hud"); return (hd && !hd.classList.contains("hidden") ? hd.getBoundingClientRect().bottom : 0) + 24; }
 
 function spawnWord(sub){
   let pool;
@@ -1557,7 +1611,7 @@ function spawnWord(sub){
   if(isEventWord) fall = fall * 1.20;
   
   gs.targets.push({
-    word, n:norm(word), x:rand(70,W-70), y:-24, typed:0,
+    word, n:norm(word), x:rand(70,W-70), y:topY(), born:performance.now(), typed:0,
     speed:fall*(0.85+Math.random()*0.3),
     color: isEventWord ? "#ffd700" : COLORS[(Math.random()*COLORS.length)|0],
     isEventWord,
@@ -1799,7 +1853,7 @@ function destroyWord(t){
   if(gs.li===-2) updateWeeklyQuestProgress('arcadeScore', gs.score);
   
   let goal;
-  if(gs.li===-1){
+  if(gs.li===-1||gs.li===-3){
     goal=gs.customGoal;
   } else if(gs.li===-2){
     // Arcade sin fin
@@ -1809,7 +1863,7 @@ function destroyWord(t){
   }
   _("pb").style.width=Math.min(100,gs.completedWords/goal*100)+"%";
   if(gs.completedWords>=goal) {
-    if(gs.li===-1) customGameComplete();
+    if(gs.li===-1||gs.li===-3) customGameComplete();
     else sublevelComplete();
   }
 }
@@ -1842,8 +1896,7 @@ function loseLife(t){
     petSay("bad");
   } else {
     // Palabra de verano: feedback suave (sin error sound)
-    burst(t.x,baseY(),"#ffd93d",8); // efecto amarillo suave
-    petSay("neutral");
+    burst(t.x,baseY(),"#ffd93d",8); // efecto amarillo suave (sin frase: "neutral" caía en las de acierto)
   }
 
   gs.targets=gs.targets.filter(o=>o.id!==t.id);
@@ -1943,8 +1996,15 @@ function gameOver(win){
   } else if(!gs.revived && canShowRewardedAd()){
     btnRevive.style.display="block";
     btnRevive.textContent=`📺 Revivir (+1 Vida con Anuncio) [${adsRemaining}/5]`;
+    btnRevive.disabled=false; btnRevive.style.opacity="1";
     btnRevive.onclick=async ()=>{
-      const rewarded = await AndroidServices.showRewardedAd();
+      if(btnRevive.disabled) return; // un solo anuncio por toque, aunque el niño pulse varias veces
+      btnRevive.disabled=true; btnRevive.style.opacity="0.6";
+      showToast("📺 Cargando anuncio…", 4000);
+      let rewarded=false;
+      try{ rewarded = await AndroidServices.showRewardedAd(); }catch(e){ rewarded=false; }
+      btnRevive.disabled=false; btnRevive.style.opacity="1";
+      if(!rewarded) showToast("No se pudo mostrar el anuncio. Inténtalo más tarde.");
       if(rewarded){
         trackRewardedAd();
         gs.revived=true;
@@ -1959,8 +2019,7 @@ function gameOver(win){
         updateHUD();
         petSay("good");
         showToast("❤️ ¡Reviviste! Las palabras vuelven a subir [" + getAdsRemaining72h() + "/5 ads 72h]");
-        gs.lastT=performance.now();
-        rafId=requestAnimationFrame(loop);
+        startLoop();
       }
     };
   } else if(adsRemaining === 0){
@@ -1978,7 +2037,9 @@ function gameOver(win){
 }
 
 function checkStreakPopup(){
-  if(S.streak>0 && S.streak%7===0){
+  // Una sola vez al día (antes salía en cada "Seguir"/"Menú" de ese día)
+  if(S.streak>0 && S.streak%7===0 && S.streakPopupDay!==S.lastPlayDate){
+    S.streakPopupDay=S.lastPlayDate; saveSave();
     _("sp-title").textContent=`¡Racha de ${S.streak} días!`;
     _("sp-desc").textContent=`¡Llevas ${S.streak} días seguidos aprendiendo! Te regalo 24h de Premium.`;
     _("streak-popup").classList.add("show");
@@ -2029,6 +2090,7 @@ function render(){
     // palabras
     ctx.textAlign="center";
     for(const t of gs.targets){
+      ctx.globalAlpha=t.born?Math.min(1,(performance.now()-t.born)/350):1;
       const fs=Math.max(20,30-t.word.length);
       ctx.font=`700 ${fs}px Nunito,sans-serif`;
       const done=t.word.slice(0,t.typed), rest=t.word.slice(t.typed);
@@ -2091,25 +2153,22 @@ function updateHUD(){
   _("hud-lives").textContent="❤️".repeat(Math.max(0,gs.lives))+"🖤".repeat(Math.max(0,3-gs.lives));
   if(gs.li>=0){
     const sub=LEVELS[gs.li].subs[gs.si];
-    _("hud-level").textContent=`${subKey(gs.li,gs.si)} · ${sub.name}`;
+    _("hud-level").innerHTML=`${subKey(gs.li,gs.si)}<span class="lv-name"> · ${sub.name}</span>`;
   } else if(gs.li===-2){
-    _("hud-level").textContent="🕹️ Modo Arcade"; // BUG-05
+    _("hud-level").textContent="🕹️ Arcade"; // BUG-05
   } else if(gs.li===-3){
-    _("hud-level").textContent="📚 Biblioteca";
+    _("hud-level").textContent="📚";
   } else {
-    _("hud-level").textContent="✍️ Mis textos";
+    _("hud-level").textContent="✍️";
   }
   _("hud-score").textContent=gs.score;
-  _("hud-best").textContent=`🏆${S.highScore}`;
-  _("hud-xp").textContent=`⭐${S.totalXp} XP`;
-  _("hud-streak").textContent=`🔥${S.streak}`;
-  if(isPremium()){ _("hud-streak").textContent+=" ⚡"; }
+  _("hud-xp").textContent=`⭐${S.totalXp}`+(isPremium()?" ⚡":"");
 }
 
 function updateXPBar(){
   const progress=(S.xp%500)/500*100;
   _("xp-bar-fill").style.width=Math.min(100,progress)+"%";
-  _("coll-xp-label").textContent=`⭐ ${S.totalXp} XP total · ${S.xp%500}/500 XP disponibles`;
+  _("coll-xp-label").textContent=`⭐ ${S.totalXp} XP total · ${S.xp} XP para gastar`;
 }
 
 function hideGameUI(){
@@ -2121,7 +2180,59 @@ function hideGameUI(){
 }
 
 const SCREENS=["sc-start","sc-levels","sc-collection","sc-levelup","sc-over","sc-pause","sc-leaderboard","sc-custom","sc-victory","sc-library"]; // BUG-04: sc-victory incluido
-function showScreen(id){ SCREENS.forEach(s=>_(s).classList.add("hidden")); if(id) _(id).classList.remove("hidden"); }
+function showScreen(id){
+  SCREENS.forEach(s=>_(s).classList.add("hidden")); if(id) _(id).classList.remove("hidden");
+  if(id==="sc-start") disarmBack(); else armBack();
+  _("btn-resume-game").style.display=gs.suspended?"":"none";
+  _("streak-info").style.visibility=id==="sc-start"?"visible":"hidden";
+}
+
+// ---- Botón Atrás ----
+//   partida -> pausa · pausa -> menú (la partida queda guardada: "Continuar partida") · otra pantalla -> menú
+//   menú principal -> sale de la app (comportamiento normal)
+// En Android lo llama MainActivity (window.__nativeBack): si devuelve false, la app se cierra.
+// En la web (navegador/PWA) se usa una entrada extra del historial para que Atrás no abandone la página.
+const IS_NATIVE=!!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+if(IS_NATIVE) document.body.classList.add("native");
+let backArmed=false, skipPop=0;
+function armBack(){ if(!IS_NATIVE && !backArmed){ try{ history.pushState({mc:1},""); backArmed=true; }catch(e){} } }
+function disarmBack(){ if(backArmed){ backArmed=false; skipPop++; try{ history.back(); }catch(e){ skipPop--; } } }
+function goMenu(){ cancelAnimationFrame(menuRafId); gs.state="menu"; showScreen("sc-start"); startMenuAnim(); }
+// Devuelve true si Atrás se ha gestionado dentro del juego; false si hay que salir de la app.
+function handleBack(){
+  if(_("tutorial-overlay").style.display==="flex"){ _("btn-tut-done").click(); return true; }
+  if(_("streak-popup").classList.contains("show")){ _("btn-sp-close").click(); return true; }
+  if(_("diff-modal").classList.contains("show")){ _("diff-cancel").click(); return true; }
+  const st=gs.state;
+  if(st==="play"){ gs.state="pause"; showScreen("sc-pause"); return true; }
+  if(st==="pause"){ gs.suspended=true; hideGameUI(); goMenu(); return true; }
+  if(st==="menu" && !_("sc-start").classList.contains("hidden")) return false;
+  goMenu(); return true;
+}
+window.__nativeBack=handleBack;
+window.addEventListener("popstate",()=>{
+  if(skipPop>0){ skipPop--; return; }
+  backArmed=false;
+  handleBack();
+});
+// Si la app pasa a segundo plano en plena partida, queda en pausa
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden && gs.state==="play"){ gs.state="pause"; showScreen("sc-pause"); }
+});
+function refreshProgressBar(){
+  let goal=0;
+  if(gs.li>=0) goal=LEVELS[gs.li].subs[gs.si].goal; else if(gs.li===-1||gs.li===-3) goal=gs.customGoal||0;
+  _("pb").style.width=goal?Math.min(100,gs.completedWords/goal*100)+"%":"0%";
+}
+function resumeSuspended(){
+  if(!gs.suspended) return;
+  cancelAnimationFrame(menuRafId);
+  gs.state="pause";
+  _("hud").classList.remove("hidden"); _("xp-bar-wrap").classList.remove("hidden");
+  _("pet-container").style.display="block"; _("kb-guide").style.display="flex";
+  updateHUD(); updateXPBar(); refreshProgressBar();
+  showScreen("sc-pause"); startLoop();
+}
 
 function statBox(v,l){ return `<div class="stat"><div class="sv">${v}</div><div class="sl">${l}</div></div>`; }
 
@@ -2281,7 +2392,7 @@ function buildLevels(){
 function buildCollection(){
   const totalXp=S.totalXp;
   const currentLevelXp=S.xp%500;
-  _("coll-xp-label").textContent=`⭐ ${totalXp} XP total · ${currentLevelXp}/500 XP disponibles`;
+  _("coll-xp-label").textContent=`⭐ ${totalXp} XP total · ${S.xp} XP para gastar`;
   _("coll-xp-fill").style.width=(currentLevelXp/500)*100+"%";
 
   // mascotas
@@ -2410,6 +2521,7 @@ function renderSkinPreview(){
 // ============================================================
 
 _("btn-play").onclick=()=>{ ac(); findFirstAvailable(); };
+_("btn-resume-game").onclick=()=>{ ac(); resumeSuspended(); };
 _("btn-arcade").onclick=()=>{ ac(); startArcadeGame(); };
 _("btn-leaderboard").onclick=()=>{ AndroidServices.showLeaderboard(); };
 _("btn-back-leaderboard").onclick=()=>{ cancelAnimationFrame(menuRafId); gs.state="menu"; showScreen("sc-start"); startMenuAnim(); };
@@ -2421,26 +2533,33 @@ _("btn-back-levels").onclick=()=>{ cancelAnimationFrame(menuRafId); gs.state="me
 _("btn-back-coll").onclick=()=>{ cancelAnimationFrame(menuRafId); gs.state="menu"; showScreen("sc-start"); startMenuAnim(); };
 _("btn-continue").onclick=(e)=>{
   ac();
-  checkStreakPopup();
   const d=e.currentTarget.dataset;
   const li=parseInt(d.li), si=parseInt(d.si);
   const hasNext=d.hasNext==="1";
-  if(hasNext) startSublevel(li,si);
-  else { cancelAnimationFrame(menuRafId); gs.state="menu"; showScreen("sc-start"); startMenuAnim(); }
+  if(hasNext) startSublevel(li,si); // el premio de racha se ofrece al volver al menú, no encima de una partida en marcha
+  else { checkStreakPopup(); cancelAnimationFrame(menuRafId); gs.state="menu"; showScreen("sc-start"); startMenuAnim(); }
 };
 _("btn-menu-lu").onclick=()=>{ checkStreakPopup(); cancelAnimationFrame(menuRafId); gs.state="menu"; showScreen("sc-start"); startMenuAnim(); };
 _("btn-retry").onclick=()=>{ ac(); if(gs.isArcade) startArcadeGame(); else if(gs.li===-1) startCustomGame(gs.customWords); else if(gs.li===-3) startLibraryStory(gs._libStory, gs._libDiff); else startSublevel(gs.li,gs.si); }; // BUG-06
 _("btn-menu-ov").onclick=()=>{ cancelAnimationFrame(menuRafId); gs.state="menu"; showScreen("sc-start"); startMenuAnim(); };
-_("btn-resume").onclick=()=>{ gs.state="play"; showScreen(null); gs.lastT=performance.now(); rafId=requestAnimationFrame(loop); };
+_("btn-resume").onclick=()=>{ if(gs.state!=="pause") return; gs.state="play"; showScreen(null); startLoop(); };
 _("btn-quit-pause").onclick=()=>{ cancelAnimationFrame(menuRafId); gs.state="menu"; hideGameUI(); showScreen("sc-start"); startMenuAnim(); };
-_("btn-mute").onclick=()=>{ muted=!muted; _("btn-mute").textContent=muted?"🔇":"🔊"; };
+_("btn-mute").onclick=()=>{ muted=!muted; _("btn-mute").textContent=muted?"🔇 Sin sonido":"🔊 Sonido"; };
 _("btn-pause").onclick=()=>{ if(gs.state==="play"){ gs.state="pause"; showScreen("sc-pause"); } };
 _("btn-sp-claim").onclick=()=>claimStreakReward();
 _("btn-sp-close").onclick=()=>_("streak-popup").classList.remove("show");
 
 _("btn-play-again").onclick=()=>{ ac(); findFirstAvailable(); };
 _("btn-menu-vic").onclick=()=>{ cancelAnimationFrame(menuRafId); gs.state="menu"; showScreen("sc-start"); startMenuAnim(); };
-_("btn-start-tutorial").onclick=()=>{ _("tutorial-overlay").style.display="none"; S.firstTime=false; saveSave(); };
+// Tutorial en dos páginas: 1) cómo se juega, 2) para qué sirve cada botón. Se abre solo la primera vez y con ❓.
+function showTutorial(page){
+  _("tut-p1").style.display=page===1?"flex":"none";
+  _("tut-p2").style.display=page===2?"flex":"none";
+  _("tutorial-overlay").style.display="flex";
+}
+_("btn-start-tutorial").onclick=()=>showTutorial(2);
+_("btn-tut-done").onclick=()=>{ _("tutorial-overlay").style.display="none"; S.firstTime=false; saveSave(); };
+_("btn-help").onclick=()=>showTutorial(2);
 
 // Panel personalizado — visible pero bloqueado hasta Nivel 6 (INCONS-04)
 _("btn-custom").onclick=()=>{
@@ -2456,7 +2575,7 @@ _("btn-clear-custom").onclick=()=>{ _("custom-text-input").value=""; _("char-cou
 _("btn-save-custom").onclick=()=>{
   const text=_("custom-text-input").value.trim();
   if(!text){ showToast("Por favor escribe algo"); return; }
-  const words=text.toLowerCase().split(/\s+/).filter(w=>w.length>0);
+  const words=cleanWords(text.split(/\s+/));
   if(words.length<5){ showToast("Necesitas al menos 5 palabras"); return; }
   const name=prompt("¿Cómo quieres llamar este texto?");
   if(!name){ showToast("Guardado cancelado"); return; }
@@ -2468,7 +2587,7 @@ _("btn-save-custom").onclick=()=>{
 _("btn-play-custom").onclick=()=>{
   const text=_("custom-text-input").value.trim();
   if(!text){ showToast("Por favor escribe algo"); return; }
-  const words=text.toLowerCase().split(/\s+/).filter(w=>w.length>0);
+  const words=cleanWords(text.split(/\s+/));
   if(words.length<5){ showToast("Necesitas al menos 5 palabras"); return; }
   startCustomGame(words);
 };
@@ -2482,6 +2601,8 @@ document.addEventListener("keydown",e=>{
     return;
   }
   if(gs.state!=="play") return;
+  // Con el foco en #touch-input la tecla ya llega por su evento "input": procesarla aquí la contaría dos veces
+  if(e.target===_("touch-input")) return;
   if(e.key.length===1) handleKey(e.key);
 });
 
@@ -2570,7 +2691,7 @@ function startLibraryStory(story, diffMode){
   const params = diffParams[diffMode] || diffParams.medium;
   gs._libStory = story;
   gs._libDiff  = diffMode;
-  gs.isArcade=false;
+  gs.isArcade=false; gs.revived=false;
   gs.li=-3; gs.si=-3;
   gs.state="play"; gs.score=0; gs.lives=3;
   gs.targets=[]; gs.particles=[]; gs.lasers=[];
@@ -2595,9 +2716,7 @@ function startLibraryStory(story, diffMode){
   updateXPBar();
   petAnim.state="idle";
   petSay("start");
-  if(rafId) cancelAnimationFrame(rafId);
-  gs.lastT=performance.now();
-  rafId=requestAnimationFrame(loop);
+  startLoop();
   // Focus hidden input for mobile keyboard
   _("touch-input").focus();
 }
@@ -2624,7 +2743,7 @@ function startMenuAnim(){
 // ============================================================
 function updateMenuStreak(){
   const el=_("streak-info");
-  if(S.streak>0) el.textContent=`🔥 Racha: ${S.streak} día${S.streak!==1?"s":""} seguidos`;
+  if(S.streak>0) el.textContent=`🔥 ${S.streak} día${S.streak!==1?"s seguidos":" seguido"}`;
   else el.textContent="";
   if(isPremium()){
     const left=Math.ceil((S.premiumUntil-Date.now())/3600000);
@@ -2643,6 +2762,7 @@ function updateMenuStreak(){
 // INIT
 // ============================================================
 loadSave();
+if(S.firstTime) showTutorial(1); // el tutorial existía pero nunca se mostraba
 updateStreak();
 resize();
 initStars();
@@ -2652,7 +2772,7 @@ showScreen("sc-start");
 startMenuAnim();
 // Detectar touch y adaptar hint (UX-10)
 if('ontouchstart' in window || navigator.maxTouchPoints>0){
-  _("input-hint").textContent="Toca la pantalla para abrir el teclado · Pulsa ⏸ para pausar";
+  _("input-hint").textContent=IS_NATIVE ? "Toca la pantalla para abrir el teclado · Atrás pausa la partida" : "Toca la pantalla para abrir el teclado · Pulsa ⏸ para pausar";
 }
 // Mobile touch input: reenviar lo escrito al handler del juego
 _("touch-input").addEventListener("input",e=>{
